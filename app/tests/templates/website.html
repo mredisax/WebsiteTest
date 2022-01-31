@@ -1,0 +1,82 @@
+{% extends "header.html" %}
+{% block content %}
+{% load static %}
+<br>
+<div class="row">
+  <div class="col-md-4 spinner-load">
+    <ul class="list-group justify-content-center">
+      <li class="list-group-item active d-flex bg-success justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">Nazwa: <strong>{{website.name}}</strong></div>
+          <small>data: {{website.create_data}}</small>
+        </div>
+        <span class="badge bg-light rounded-pill"><a
+            href="/admin/tests/website/{{website.id}}/change/">edycja</a></span>
+      </li>
+      <li class="list-group-item">Status: {{website.status}}</li>
+      <li class="list-group-item">IP_org: {{website.ip_source}}</li>
+      <li class="list-group-item">IP_dest: {{website.ip_destination}}</li>
+      <li class="list-group-item">JIRA: <a href="{{website.jira}}">{{website.jira}}</a></li>
+      <li class="list-group-item">Stary serwer: {{website.old_host_name}}</li>
+      <li class="list-group-item">Przekierowana: {{website.redirect}}</li>
+      <li class="list-group-item">Autor pingdom org: {{website.user.first_name}} {{website.user.last_name}}</li>
+      <li class="list-group-item">Autor load org dest chrome: {{website.user_test.first_name}} {{website.user_test.last_name}}</li>
+      <li class="list-group-item">Autor testów po przekierowaniu: {{website.user_redirect.first_name}} {{website.user_redirect.last_name}}</li>
+      <li class="list-group-item">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          {% if website.pingdom_org_file %}
+          <a href="/media/{{website.pingdom_org_file}}" type="button" class="btn btn-success">pingdom_org</a>
+          {% else %}
+          <button type="button" class="btn btn-secondary" disabled>pingdom_org</button>
+          {% endif %}
+          {% if website.pingdom_dest_file %}
+          <a href="/media/{{website.pingdom_dest_file}}" type="button" class="btn btn-success">pingdom_dest</a>
+          {% else %}
+          <button type="button" class="btn btn-secondary" disabled>pingdom_dest</button>
+          {% endif %}
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-md-8">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">pingdom_org [ms]</th>
+          <th scope="col">pingdom_dest [ms]</th>
+          <th scope="col">load_org [ms]</th>
+          <th scope="col">load_dest [ms]</th>
+          <th scope="col">load_redirect [ms]</th>
+          <th scope="col">rtt_org[ms]</th>
+          <th scope="col">rtt_dest[ms]</th>
+          <th scope="col">rtt_redirect [ms]</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in test %}
+        <tr>
+          <th scope="row">{{ forloop.counter}}</th>
+          <td>{{t.pingdom_org}}</td>
+          <td>{{t.pingdom_dest}}</td>
+          <td>{{t.load_org}}</td>
+          <td>{{t.load_dest}}</td>
+          <td>{{t.load_redirect}}</td>
+          <td>{{t.rtt_org}}</td>
+          <td>{{t.rtt_dest}}</td>
+          <td>{{t.rtt_redirect}}</td>
+        </tr>
+        {% endfor %}
+
+        <tr class="table-success">
+          <th scope="row">AVG</th>
+          {% for a in avg %}
+          <td>{{a}}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

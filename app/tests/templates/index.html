@@ -1,0 +1,126 @@
+{% extends "header.html" %}
+{% block content %}
+{% load static %}
+<br>
+
+<table id="table-site" class="table table-striped table-hover" style="width:100%">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">name</th>
+      <th scope="col">status</th>
+      <th scope="col">data utworzenia</th>
+      <th scope="col">ip org</th>
+      <th scope="col">ip dest</th>
+      <th scope="col">jira</th>
+      <th scope="col">old host</th>
+      <th scope="col">redirect</th>
+      <th scope="col">p_org</th>
+      <th scope="col">p_dest</th>
+      <th scope="col">tester</th>
+      <!-- <th scope="col">l_org</th>
+      <th scope="col">l_dest</th> -->
+    </tr>
+  </thead>
+  <tbody>
+    {% for w in websites  %}
+    <tr>
+      <th scope="row">{{w.id}}</th>
+      <td><a href="strony/{{w.slug}}/{{w.id}}">{{w.name}}</a></td>
+      <td>{{w.status}}</td>
+      <td>{{w.create_data|date:"d-m-Y"}}</td>
+      <td>{{w.ip_source}}</td>
+      <td>{{w.ip_destination}}</td>
+      <td>{{w.jira}}</td>
+      <td>{{w.old_host_name}}</td>
+      <td>{{w.redirect}}</td>
+      {% if w.pingdom_org_file %}
+      <td><a href="media/{{w.pingdom_org_file}}"><i class="bi bi-arrow-down-circle"
+            style="font-size: 1rem; color: rgb(100, 212, 66);"></i></a></td>
+      {% else %}
+      <td><i class="bi bi-dash-circle" style="font-size: 1rem; color: rgb(248, 73, 73);"></i></td>
+      {% endif %}
+      {% if w.pingdom_dest_file %}
+      <td><a href="media/{{w.pingdom_dest_file}}"><i class="bi bi-arrow-down-circle"
+            style="font-size: 1rem; color: rgb(100, 212, 66);"></i></a></td>
+      {% else %}
+      <td><i class="bi bi-dash-circle" style="font-size: 1rem; color: rgb(248, 73, 73);"></i></td>
+      {% endif %}
+      <td> {{w.user_test.first_name}} {{w.user_test.last_name}} </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">name</th>
+      <th scope="col">status</th>
+      <th scope="col">data utworzenia</th>
+      <th scope="col">ip org</th>
+      <th scope="col">ip dest</th>
+      <th scope="col">jira</th>
+      <th scope="col">old host</th>
+      <th scope="col">redirect</th>
+      <th scope="col">p_org</th>
+      <th scope="col">p_dest</th>
+      <th scope="col">tester</th>
+      <!-- <th scope="col">l_org</th>
+      <th scope="col">l_dest</th> -->
+    </tr>
+  </tfoot>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#table-site').DataTable({
+      language: {
+        "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Polish.json"
+      },
+      order: [
+        [0, "desc"]
+      ],
+      orderCellsTop: true,
+      initComplete: function () {
+        this.api().columns().every(function () {
+          var column = this;
+          var select = $('<select class="form-select"><option value=""></option></select>')
+            .appendTo($(column.footer()).empty())
+            .on('change', function () {
+              var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+              );
+
+              column
+                .search(val ? '^' + val + '$' : '', true, false)
+                .draw();
+            });
+          column.data().unique().sort().each(function (d, j) {
+            if (column.search() === '^' + d + '$') {
+              select.append('<option value="' + d + '" selected="selected">' + d + '</option>')
+            } else {
+              select.append('<option value="' + d + '">' + d + '</option>')
+            }
+          });
+
+        });
+      }
+    });
+  });
+
+  // $(document).ready(function () {
+  //   $('#table-site').DataTable({
+  //     "language": {
+  //       "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Polish.json"
+  //     },
+  //     "order": [
+  //       [3, "desc"]
+  //     ]
+  //   });
+  // });
+</script>
+
+{% endblock%}

@@ -1,0 +1,170 @@
+{% extends "header.html" %}
+{% block content %}
+{% load static %}
+{% load mathfilters %}
+<table cellspacing="5" cellpadding="5">
+  <tbody><tr>
+      <td>Data od:</td>
+      <td><input type="text" id="min" name="min"></td>
+  </tr>
+  <tr>
+      <td>Data do:</td>
+      <td><input type="text" id="max" name="max"></td>
+  </tr>
+</tbody></table>
+<table class="table" id="table-raport">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Data migracji</th>
+	<!--<th scope="col">Data Zakończenia</th>--->
+        <th scope="col">Data Pingdom Dostawca</th>
+        <th scope="col">Data przegląradka</th>
+        <th scope="col">Data pingdom i przeglądarka po propagacji</th>
+        <th scope="col">Poprzedni dostawca hostingu</th>
+        <th scope="col">Domena</th>
+        <th scope="col">Średni czas hostingu org Londyn pingdom</th>
+        <th scope="col">Średni czas hostingu dest Londyn pingdom</th>
+        <th scope="col">Różnica pingdom Londyn </th>
+        <th scope="col">Średni czas hostingu org Londyn load chrome</th>
+        <th scope="col">Średni czas hostingu nazwa Londyn load chrome</th>
+	<th scope="col">Średni czas hostingu redirect Londyn load chrome</th>
+        <th scope="col">Różnica load chrome</th>
+	<th scope="col">Różnica load przekierowanie chrome</th>
+        <th scope="col">Rtt org</th>
+	<th scope="col">IP dostawca</th>
+        <th scope="col">Rtt dest </th>
+	<th scope="col">Rtt redirect </th>
+        <th scope="col">Rtt różnica </th>
+	<th scope="col">Rtt różnica przekierowanie</th>
+	<th scope="col">Dostawca internetu (test przeglądarka)</th>
+        <th scope="col">Dostawca internetu przekierowanie (test przeglądarka)</th>
+        <th scope="col">Uwagi </th>
+	<th scope="col">Jira na analizę </th>
+        <th scope="col">Osoba wykonująca pingdom org </th>
+        <th scope="col">Osoba wykonująca load org i dest </th>
+        <th scope="col">Osoba wykonująca pingdom, load i rtt przekierowane</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for w in websites.all %}
+      <tr>
+        <td>{{ w.create_data | date:"Y-m-d" }}</td>
+	<!--<td>{{ w.end_data | date:"Y-m-d" }}</td>-->
+        <td>{{ w.create_data | date:"Y-m-d" }}</td>
+        <td>{{ w.load_data | date:"Y-m-d" }}</td>
+        <td>{{ w.redirect_data | date:"Y-m-d" }}</td>
+        <td>{{ w.old_host_name }}</td> 
+	<td><a href="strony/{{w.slug}}/{{w.id}}"> {{ w.name }} </a></td>
+        <td>{{ w.pingdom_org_avg }}</td>
+        <td>{{ w.pingdom_dest_avg }}</td>
+	{% if w.pingdom_dest_avg|sub:w.pingdom_org_avg > 0 %}
+	<td class="bg-danger">{{ w.pingdom_dest_avg|sub:w.pingdom_org_avg }}</td>
+	{% else %}
+	<td>{{ w.pingdom_dest_avg|sub:w.pingdom_org_avg }}</td>
+	{% endif %}
+        <td>{{ w.load_org_avg}}</td>
+        <td>{{ w.load_dest_avg }}</td>
+	<td> {{ w.load_redirect_avg }}
+        {% if w.load_dest_avg|sub:w.load_org_avg > 0 %}
+        <td class="bg-danger">{{ w.load_dest_avg|sub:w.load_org_avg }}</td>
+        {% else %}
+        <td>{{ w.load_dest_avg|sub:w.load_org_avg }}</td>
+        {% endif %} 
+
+	{% if w.load_redirect_avg|sub:w.load_org_avg > 0 %}
+        <td class="bg-danger">{{ w.load_dest_avg|sub:w.load_org_avg }}</td>
+        {% else %}
+        <td>{{ w.load_redirect_avg|sub:w.load_org_avg }}</td>
+        {% endif %}
+        <td>{{ w.rtt_org_avg }}</td>
+	<td> {{w.ip_source }} </td> 
+        <td>{{ w.rtt_dest_avg }}</td>
+	<td>{{ w.rtt_redirect }} </td>
+        {% if w.rtt_dest_avg|sub:rtt_org_avg > 0 %}
+        <td class="bg-danger">{{ w.rtt_dest_avg|sub:w.rtt_org_avg }}</td>
+        {% else %}
+        <td>{{ w.rtt_dest_avg|sub:w.rtt_org_avg }}</td>
+        {% endif %}
+	{% if w.rtt_redirect_avg|sub:rtt_org_avg > 0 %}
+        <td class="bg-danger">{{ w.rtt_dest_avg|sub:w.rtt_org_avg }}</td>
+        {% else %}
+        <td>{{ w.rtt_redirect_avg|sub:w.rtt_org_avg }}</td>
+        {% endif %}
+	<td>{{ w.user_test.network }}</td>
+        <td>{{ w.user_test.network }}</td>
+        <td>{{ w.description }}</td>
+	<td> </td>
+        <td>{{ w.user.first_name }} {{ w.user.last_name }}</td>
+        <td>{{ w.user_test.first_name }} {{ w.user_test.last_name }}</td>
+        <td>{{ w.user_redirect.first_name }} {{ w.user_redirect.last_name }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.print.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script src="https://cdn.datatables.net/datetime/1.1.1/js/dataTables.dateTime.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  
+<script>
+    var minDate, maxDate;
+ 
+ // Custom filtering function which will search data in column four between two values
+ $.fn.dataTable.ext.search.push(
+     function( settings, data, dataIndex ) {
+         var min = minDate.val();
+         var max = maxDate.val();
+         var date = new Date( data[4] );
+  
+         if (
+             ( min === null && max === null ) ||
+             ( min === null && date <= max ) ||
+             ( min <= date && max === null ) ||
+             ( min <= date && date <= max )
+         ) {
+             return true;
+         }
+         return false;
+     }
+ );
+  
+ $(document).ready(function() {
+     // Create date inputs
+     minDate = new DateTime($('#min'), {
+         format: 'MMMM Do YYYY'
+     });
+     maxDate = new DateTime($('#max'), {
+         format: 'MMMM Do YYYY'
+     });
+
+
+    $(document).ready(function() {
+        var table = $('#table-raport').DataTable( {
+            "scrollX": true,
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: "Raport testów pomigracyjnych",
+                    className: "btn btn-info"
+                }
+            ]
+        } );
+        // Refilter the table
+        $('#min, #max').on('change', function () {
+            table.draw();
+        });
+    } );
+ 
+
+});
+ 
+  </script>
+
+{% endblock%}
